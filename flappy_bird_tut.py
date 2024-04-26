@@ -1,5 +1,6 @@
 import pygame
 from pygame.locals import *
+import random
 
 pygame.init()
 
@@ -14,8 +15,9 @@ pygame.display.set_caption('Flappy Bird')
 
 # position of ground and speed the image
 ground_scroll = 0
-ground_speed = 3
-
+ground_speed = 4
+flying = False
+game_over = False
 
 bg = pygame.image.load('bg3.png')
 ground = pygame.image.load('ground2.png')
@@ -23,34 +25,59 @@ ground = pygame.image.load('ground2.png')
 class Bird(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load('bird.png')
-        self.DEFAULT_SIZE = (55, 60)
-        self.image = pygame.transform.scale(self.image, self.DEFAULT_SIZE)
+        self.images = []
+        self.index = 0
+        self.counter = 0
+        for num in range(1, 4):
+            img = pygame.image.load(f"img/bird{num}.png")
+            self.images.append(img)
+        self.image = self.images[self.index]
         self.rect = self.image.get_rect()
         self.rect.center = [x, y]
-        self.velo = 0
+        self.vel = 0
         self.clicked = False
+
 
     def update(self):
 
-        # gravity
-        self.velo += 0.5
-        if self.velo > 8:
-            self.velo = 8
-        if self.rect.bottom < SCREEN_HEIGHT - ground.get_height():
-            self.rect.y += int(self.velo)
+        if flying == True:
+            # apply gravity
+            self.vel += 0.5
+            if self.vel > 8:
+                self.vel = 8
+            if self.rect.bottom < SCREEN_HEIGHT - ground.get_height():
+                self.rect.y += int(self.vel)
 
-        # jump
-        if pygame.mouse.get_pressed()[0] == 1:
-            self.clicked = True
-            self.velo = -10
-        # animation
-        # self.counter += 1
-        # flap_cooldown = 0
-        # if self.counter > flap_cooldown:
-        #     self.counter = 0
-        #     flap_cooldown += 1
-        # self.image = self.birds[self.index]
+
+
+        if game_over == False:
+
+            # jump wegen Space Taste
+            result = False
+            for value in pygame.key.get_pressed():
+                result = result or value
+            if result == True and self.clicked == False:
+                self.clicked = True
+                self.vel = -10
+            if result == False:
+                self.clicked = False
+
+            # handle the animation
+            flap_cooldown = 5
+            self.counter += 1
+
+            if self.counter > flap_cooldown:
+                self.counter = 0
+                self.index += 1
+            if self.index >= len(self.images):
+                self.index = 0
+
+            # rotate the brid
+            self.image = pygame.transform.rotate(self.images[self.index], self.vel * -2)
+        else:
+            # point the bird at the ground
+            self.image = pygame.transform.rotate(self.images[self.index], -90)
+
 
 
 bird_group = pygame.sprite.Group()
@@ -80,6 +107,8 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.KEYDOWN and flying == False and game_over == False:
+            flying = True
 
     pygame.display.update()
 pygame.quit()
