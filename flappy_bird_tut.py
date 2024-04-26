@@ -28,9 +28,22 @@ class Bird(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image, self.DEFAULT_SIZE)
         self.rect = self.image.get_rect()
         self.rect.center = [x, y]
+        self.velo = 0
+        self.clicked = False
 
-    #def update(self):
+    def update(self):
 
+        # gravity
+        self.velo += 0.5
+        if self.velo > 8:
+            self.velo = 8
+        if self.rect.bottom < SCREEN_HEIGHT - ground.get_height():
+            self.rect.y += int(self.velo)
+
+        # jump
+        if pygame.mouse.get_pressed()[0] == 1:
+            self.clicked = True
+            self.velo = -10
         # animation
         # self.counter += 1
         # flap_cooldown = 0
@@ -56,12 +69,14 @@ while running:
 
     # draw a bird on the screen
     bird_group.draw(screen)
+    bird_group.update()
 
     # draw and scroll the ground
     screen.blit(ground, (ground_scroll, SCREEN_HEIGHT - ground.get_height()))
     ground_scroll -= ground_speed
     if abs(ground_scroll) > 35:
         ground_scroll = 0
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
