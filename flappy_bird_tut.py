@@ -77,12 +77,30 @@ class Bird(pygame.sprite.Sprite):
                 self.image = pygame.transform.rotate(self.images[self.index], -90)
 
 
+class Pipe(pygame.sprite.Sprite):
+    def __init__(self, x, y, position):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load("flappy_bird2/img/pipe1.png")
+        self.rect = self.image.get_rect()
+        # postion 1 is from the top and -1 is from the bottom
+        if position == 1:
+            self.image = pygame.transform.flip(self.image, False, True)
+            self.rect.bottomleft = [x, y]
+        if position == -1:
+           self.rect.topleft = [x, y]
 
 bird_group = pygame.sprite.Group()
+pipe_group = pygame.sprite.Group()
 
 flappy = Bird(int(SCREEN_WIDTH / 8), int(SCREEN_HEIGHT / 2))
 
 bird_group.add(flappy)
+
+btm_pipe = Pipe(int(SCREEN_WIDTH / 2), int(SCREEN_HEIGHT / 2), -1)
+top_pipe = Pipe(int(SCREEN_WIDTH / 2), int(SCREEN_HEIGHT / 2), 1)
+# add the pipe on the screen
+pipe_group.add(btm_pipe)
+pipe_group.add(top_pipe)
 
 running = True
 while running:
@@ -94,6 +112,10 @@ while running:
     # draw a bird on the screen
     bird_group.draw(screen)
     bird_group.update()
+
+    # draw a pipe on the screen
+    pipe_group.draw(screen)
+    pipe_group.update()
 
     # draw and scroll the ground
     screen.blit(ground, (ground_scroll, SCREEN_HEIGHT - ground.get_height()))
