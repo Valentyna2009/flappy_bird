@@ -7,7 +7,7 @@ pygame.init()
 clock = pygame.time.Clock()
 fps = 60
 
-SCREEN_WIDTH = 800
+SCREEN_WIDTH = 850
 SCREEN_HEIGHT = 800
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -18,6 +18,10 @@ ground_scroll = 0
 ground_speed = 3
 flying = False
 game_over = False
+pipe_gap = 160
+# частота появления этих труб в милисекундах
+pipe_frequency = 1500
+last_pipe = pygame.time.get_ticks() - pipe_frequency
 
 bg = pygame.image.load('flappy_bird2/bg3.png')
 ground = pygame.image.load('flappy_bird2/ground2.png')
@@ -49,7 +53,6 @@ class Bird(pygame.sprite.Sprite):
                     self.rect.y += int(self.vel)
 
             if game_over == False:
-
                 # jump wegen Space Taste
                 result = False
                 for value in pygame.key.get_pressed():
@@ -85,9 +88,12 @@ class Pipe(pygame.sprite.Sprite):
         # postion 1 is from the top and -1 is from the bottom
         if position == 1:
             self.image = pygame.transform.flip(self.image, False, True)
-            self.rect.bottomleft = [x, y]
+            self.rect.bottomleft = [x, y - int(pipe_gap / 2)]
         if position == -1:
-           self.rect.topleft = [x, y]
+           self.rect.topleft = [x, y + int(pipe_gap / 2)]
+
+    def update(self):
+        self.rect.x -= ground_speed
 
 bird_group = pygame.sprite.Group()
 pipe_group = pygame.sprite.Group()
@@ -96,11 +102,6 @@ flappy = Bird(int(SCREEN_WIDTH / 8), int(SCREEN_HEIGHT / 2))
 
 bird_group.add(flappy)
 
-btm_pipe = Pipe(int(SCREEN_WIDTH / 2), int(SCREEN_HEIGHT / 2), -1)
-top_pipe = Pipe(int(SCREEN_WIDTH / 2), int(SCREEN_HEIGHT / 2), 1)
-# add the pipe on the screen
-pipe_group.add(btm_pipe)
-pipe_group.add(top_pipe)
 
 running = True
 while running:
@@ -126,7 +127,18 @@ while running:
         game_over = True
         flying = False
 
-    if game_over == False:
+    if game_over == False and flying == True:
+
+        # generate new pipes
+        time_now = pygame.time.get_ticks()
+        if time_now - last_pipe > pipe_frequency:
+            btm_pipe = Pipe(SCREEN_WIDTH, int(SCREEN_HEIGHT / 2), -1)
+            top_pipe = Pipe(SCREEN_WIDTH, int(SCREEN_HEIGHT / 2), 1)
+            # add the pipe on the screen
+            pipe_group.add(btm_pipe)
+            pipe_group.add(top_pipe)
+            last_pipe = time_now
+
         ground_scroll -= ground_speed
         if abs(ground_scroll) > 35:
             ground_scroll = 0
