@@ -104,6 +104,7 @@ bird_group.add(flappy)
 
 
 running = True
+
 while running:
 
     clock.tick(fps)
@@ -122,7 +123,7 @@ while running:
     screen.blit(ground, (ground_scroll, SCREEN_HEIGHT - ground.get_height()))
 
 
-    # check if bird touch the groud 
+    # check if bird touch the groud
     if flappy.rect.bottom >= SCREEN_HEIGHT - ground.get_height():
         game_over = True
         flying = False
