@@ -13,18 +13,32 @@ SCREEN_HEIGHT = 800
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Flappy Bird')
 
+# define font
+font = pygame.font.SysFont("Bauhaus 93", 60)
+
+# defimne the color
+white = (255, 255, 255)
+
 # position of ground and speed the image
 ground_scroll = 0
 ground_speed = 3
 flying = False
 game_over = False
-pipe_gap = 160
+pipe_gap = 165
 # частота появления этих труб в милисекундах
-pipe_frequency = 1500
+pipe_frequency = 2000
 last_pipe = pygame.time.get_ticks() - pipe_frequency
+# счётчик очков и распознования, пролетела ли птичка колону, что бы засчитать бал
+score = 0
+pass_pipe = False 
 
 bg = pygame.image.load('flappy_bird2/bg3.png')
 ground = pygame.image.load('flappy_bird2/ground2.png')
+
+def print_text(text, font, text_col, x, y):
+    img = font.render(text, True, text_col)
+    screen.blit(img, (x, y))
+
 
 class Bird(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -64,7 +78,7 @@ class Bird(pygame.sprite.Sprite):
                     self.clicked = False
 
                 # handle the animation
-                flap_cooldown = 5
+                flap_cooldown = 10
                 self.counter += 1
 
                 if self.counter > flap_cooldown:
@@ -94,7 +108,10 @@ class Pipe(pygame.sprite.Sprite):
 
     def update(self):
         self.rect.x -= ground_speed
+        if self.rect.right < 0:
+            self.kill()
 
+# обьединение обьектов в группы
 bird_group = pygame.sprite.Group()
 pipe_group = pygame.sprite.Group()
 
@@ -111,20 +128,37 @@ while running:
     # background
     screen.blit(bg, (0, 0))
 
+    # draw a pipe on the screen
+    pipe_group.draw(screen)
     # draw a bird on the screen
     bird_group.draw(screen)
     bird_group.update()
 
     # draw a pipe on the screen
     pipe_group.draw(screen)
-    pipe_group.update()
 
     # draw and scroll the ground
     screen.blit(ground, (ground_scroll, SCREEN_HEIGHT - ground.get_height()))
 
+    # check the score
+    if len(pipe_group) > 0:
+        if bird_group.sprites()[0].rect.left > pipe_group.sprites()[0].rect.left\
+        and bird_group.sprites()[0].rect.right < pipe_group.sprites()[0].rect.right\
+        and pass_pipe == False:
+            pass_pipe = True
+        if pass_pipe == True:
+            if bird_group.sprites()[0].rect.left > pipe_group.sprites()[0].rect.right:
+                score += 1
+                pass_pipe = False
+                
+    print_text(str(score), font, white, int(SCREEN_WIDTH / 2), int(SCREEN_HEIGHT / 16))
+
+# если она ударяется об колону или вверх экрана, то это конец игры
+    if pygame.sprite.groupcollide(bird_group, pipe_group, False, False) or flappy.rect.top < 0:
+        game_over = True
 
     # check if bird touch the groud
-    if flappy.rect.bottom >= SCREEN_HEIGHT - ground.get_height():
+    if flappy.rect.bottom >= SCREEN_HEIGHT - ground.get_height(): 
         game_over = True
         flying = False
 
@@ -133,17 +167,19 @@ while running:
         # generate new pipes
         time_now = pygame.time.get_ticks()
         if time_now - last_pipe > pipe_frequency:
-            btm_pipe = Pipe(SCREEN_WIDTH, int(SCREEN_HEIGHT / 2), -1)
-            top_pipe = Pipe(SCREEN_WIDTH, int(SCREEN_HEIGHT / 2), 1)
+            pipe_height = random.randint(-100, 100)
+            btm_pipe = Pipe(SCREEN_WIDTH, int(SCREEN_HEIGHT / 2) + pipe_height, -1)
+            top_pipe = Pipe(SCREEN_WIDTH, int(SCREEN_HEIGHT / 2) + pipe_height , 1)
             # add the pipe on the screen
             pipe_group.add(btm_pipe)
             pipe_group.add(top_pipe)
             last_pipe = time_now
 
+        pipe_group.update()
+
         ground_scroll -= ground_speed
         if abs(ground_scroll) > 35:
             ground_scroll = 0
-
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
