@@ -34,6 +34,7 @@ pass_pipe = False
 
 bg = pygame.image.load('flappy_bird2/bg3.png')
 ground = pygame.image.load('flappy_bird2/ground2.png')
+button_img = pygame.image.load('flappy_bird2/img/restart.png')
 
 def print_text(text, font, text_col, x, y):
     img = font.render(text, True, text_col)
@@ -111,6 +112,27 @@ class Pipe(pygame.sprite.Sprite):
         if self.rect.right < 0:
             self.kill()
 
+class Button():
+    def __init__(self, x, y, image):
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+    
+    def draw(self):
+        action = False
+        # get mouse position
+        pos = pygame.mouse.get_pos()
+
+        # check if mouse is over the button
+        if self.rect.collidepoint(pos):
+            if pygame.mouse.get_pressed()[0] == 1:
+                action = True
+
+        #отобразить кнопку на экране
+        screen.blit(self.image, (self.rect.x, self.rect.y))
+
+        return action 
+
 # обьединение обьектов в группы
 bird_group = pygame.sprite.Group()
 pipe_group = pygame.sprite.Group()
@@ -119,6 +141,8 @@ flappy = Bird(int(SCREEN_WIDTH / 8), int(SCREEN_HEIGHT / 2))
 
 bird_group.add(flappy)
 
+# создать кнопку перезапуска
+button = Button(SCREEN_WIDTH // 2 - 50, SCREEN_HEIGHT // 2 - 100, button_img)
 
 running = True
 
@@ -180,6 +204,11 @@ while running:
         ground_scroll -= ground_speed
         if abs(ground_scroll) > 35:
             ground_scroll = 0
+
+    # check for game over and reset
+    if game_over == True:
+        if button.draw() == True:
+            print('Clicked')
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
