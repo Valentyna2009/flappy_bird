@@ -40,6 +40,12 @@ def print_text(text, font, text_col, x, y):
     img = font.render(text, True, text_col)
     screen.blit(img, (x, y))
 
+def reset_game():
+    pipe_group.empty()
+    flappy.rect.x = int(SCREEN_WIDTH / 8)
+    flappy.rect.y = int(SCREEN_HEIGHT / 2)
+    score = 0
+    return score
 
 class Bird(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -131,6 +137,7 @@ class Button():
         #отобразить кнопку на экране
         screen.blit(self.image, (self.rect.x, self.rect.y))
 
+        # это короче оно потом возвращает асtion = False, до того момента пока не станет True, а потом снова будет False
         return action 
 
 # обьединение обьектов в группы
@@ -208,7 +215,8 @@ while running:
     # check for game over and reset
     if game_over == True:
         if button.draw() == True:
-            print('Clicked')
+            game_over = False
+            score = reset_game()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
