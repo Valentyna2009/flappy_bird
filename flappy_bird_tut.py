@@ -25,16 +25,16 @@ ground_speed = 3
 flying = False
 game_over = False
 pipe_gap = 165
-# частота появления этих труб в милисекундах
-pipe_frequency = 2000
+# частота появления этих труб в милисекундах, чем больше, тем больше растояние
+pipe_frequency = 3500
 last_pipe = pygame.time.get_ticks() - pipe_frequency
 # счётчик очков и распознования, пролетела ли птичка колону, что бы засчитать бал
 score = 0
 pass_pipe = False 
 
-bg = pygame.image.load('flappy_bird2/bg3.png')
-ground = pygame.image.load('flappy_bird2/ground2.png')
-button_img = pygame.image.load('flappy_bird2/img/restart.png')
+bg = pygame.image.load('flappy_bird/bg3.png')
+ground = pygame.image.load('flappy_bird/ground2.png')
+button_img = pygame.image.load('flappy_bird/img/restart.png')
 
 def print_text(text, font, text_col, x, y):
     img = font.render(text, True, text_col)
@@ -54,7 +54,7 @@ class Bird(pygame.sprite.Sprite):
         self.index = 0
         self.counter = 0
         for num in range(1, 4):
-            img = pygame.image.load(f"flappy_bird2/bird{num}.png")
+            img = pygame.image.load(f"flappy_bird/bird{num}.png")
             self.images.append(img)
         self.image = self.images[self.index]
         self.rect = self.image.get_rect()
@@ -104,7 +104,7 @@ class Bird(pygame.sprite.Sprite):
 class Pipe(pygame.sprite.Sprite):
     def __init__(self, x, y, position):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load("flappy_bird2/img/pipe1.png")
+        self.image = pygame.image.load("flappy_bird/img/pipe1.png")
         self.rect = self.image.get_rect()
         # postion 1 is from the top and -1 is from the bottom
         if position == 1:
