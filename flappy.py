@@ -31,9 +31,9 @@ score = 0
 pass_pipe = False
 
 # load images
-bg = pygame.image.load('img/bg.png')
-ground_img = pygame.image.load('img/ground.png')
-button_img = pygame.image.load('img/restart.png')
+bg = pygame.image.load('flappy_bird/img/bg.png')
+ground_img = pygame.image.load('flappy_bird/img/ground.png')
+button_img = pygame.image.load('flappy_bird/img/restart.png')
 
 
 # function for outputting text onto the screen
@@ -58,7 +58,7 @@ class Bird(pygame.sprite.Sprite):
         self.index = 0
         self.counter = 0
         for num in range(1, 4):
-            img = pygame.image.load(f"img/bird{num}.png")
+            img = pygame.image.load(f"flappy_bird/img/bird{num}.png")
             self.images.append(img)
         self.image = self.images[self.index]
         self.rect = self.image.get_rect()
@@ -108,7 +108,7 @@ class Pipe(pygame.sprite.Sprite):
 
     def __init__(self, x, y, position):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load("img/pipe1.png")
+        self.image = pygame.image.load("flappy_bird/img/pipe1.png")
         self.rect = self.image.get_rect()
         # position variable determines if the pipe is coming from the bottom or top
         # position 1 is from the top, -1 is from the bottom
